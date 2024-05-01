@@ -1,9 +1,9 @@
 [package]
 name = "i3wm_switch_windows"
 authors = ["shuieryin"]
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
-description = "Switching windows across workspaces and monitors"
+description = "Switching windows (including floating windows) across workspaces and monitors"
 license = "MIT"
 repository = "https://github.com/shuieryin/i3wm_switch_windows.git"
 

@@ -1,6 +1,6 @@
 # i3wm switch windows
 
-Switching windows across workspaces and monitors
+Switching windows (including floating windows) across workspaces and monitors
 
 ## Installation
 

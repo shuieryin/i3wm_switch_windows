@@ -1,4 +1,5 @@
 use std::{env, io, process};
+
 use tokio_i3ipc::I3;
 use tokio_i3ipc::reply::NodeType::Con;
 
@@ -21,11 +22,31 @@ async fn main() -> io::Result<()> {
     let mut i3 = I3::connect().await?;
 
     let tree = i3.get_tree().await?;
+
     let mut focused_window_id = 0;
     let mut prev_window_id = 0;
     let mut next_window_id = 0;
     let mut first_window_id = 0;
     let mut last_window_id = 0;
+
+    let mut handle_window_node = |window_id: usize, focused: bool| {
+        if first_window_id == 0 {
+            first_window_id = window_id;
+        }
+
+        if focused {
+            focused_window_id = window_id;
+        } else {
+            if focused_window_id == 0 {
+                prev_window_id = window_id;
+            } else if next_window_id == 0 {
+                next_window_id = window_id;
+            }
+        }
+
+        last_window_id = window_id;
+    };
+
     for output in tree.nodes {
         if let Some(output_name) = output.name {
             if output_name != "__i3" {
@@ -33,21 +54,17 @@ async fn main() -> io::Result<()> {
                     if container.node_type == Con {
                         for workspace in container.nodes {
                             for window in workspace.nodes {
-                                if first_window_id == 0 {
-                                    first_window_id = window.id;
+                                handle_window_node(window.id, window.focused);
+                            }
+                            let mut floating_windows_status = vec![];
+                            for floating_cons in workspace.floating_nodes {
+                                for floating_window in floating_cons.nodes {
+                                    floating_windows_status.push((floating_window.id, floating_window.focused));
                                 }
-
-                                if window.focused {
-                                    focused_window_id = window.id;
-                                } else {
-                                    if focused_window_id == 0 {
-                                        prev_window_id = window.id;
-                                    } else if next_window_id == 0 {
-                                        next_window_id = window.id;
-                                    }
-                                }
-
-                                last_window_id = window.id;
+                            }
+                            floating_windows_status.sort_by(|a, b| a.0.cmp(&b.0));
+                            for (floating_window_id, floating_window_focused) in floating_windows_status {
+                                handle_window_node(floating_window_id, floating_window_focused);
                             }
                         }
                     }

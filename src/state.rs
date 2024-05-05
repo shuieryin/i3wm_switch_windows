@@ -157,17 +157,17 @@ pub fn collect_window_ids(node: &Node) {
 
         STATE.set_last_window_id(node.id);
     }
-    for inner_node in &node.nodes {
-        collect_window_ids(inner_node);
+    for child_node in &node.nodes {
+        collect_window_ids(child_node);
     }
 
     let mut sorted_floating_nodes = vec![];
-    for inner_floating_node in &node.floating_nodes {
-        sorted_floating_nodes.push((inner_floating_node.id, inner_floating_node));
+    for child_floating_node in &node.floating_nodes {
+        sorted_floating_nodes.push((child_floating_node.id, child_floating_node));
     }
     sorted_floating_nodes.sort_by(|a, b| a.0.cmp(&b.0));
 
-    for (_, inner_floating_node) in sorted_floating_nodes {
-        collect_window_ids(inner_floating_node);
+    for (_, child_floating_node) in sorted_floating_nodes {
+        collect_window_ids(child_floating_node);
     }
 }
